@@ -12,15 +12,22 @@ settings = get_settings()
 # asyncpg does not accept ssl=... as a URL query param;
 # strip it and pass ssl=False via connect_args instead.
 _db_url = settings.DATABASE_URL.split("?")[0]
+is_sqlite = _db_url.startswith("sqlite")
 
-engine = create_async_engine(
-    _db_url,
-    echo=(settings.APP_ENV == "development"),
-    pool_pre_ping=True,
-    pool_size=10,
-    max_overflow=20,
-    connect_args={"ssl": False},
-)
+if is_sqlite:
+    engine = create_async_engine(
+        _db_url,
+        echo=(settings.APP_ENV == "development"),
+    )
+else:
+    engine = create_async_engine(
+        _db_url,
+        echo=(settings.APP_ENV == "development"),
+        pool_pre_ping=True,
+        pool_size=10,
+        max_overflow=20,
+        connect_args={"ssl": False},
+    )
 
 AsyncSessionLocal = async_sessionmaker(
     bind=engine,
@@ -45,3 +52,7 @@ async def init_db() -> None:
     from app import models  # noqa: F401 – registers all models
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        if not is_sqlite:
+            # create_all never alters existing tables; add columns introduced later.
+            await conn.exec_driver_sql("ALTER TABLE chunks ADD COLUMN IF NOT EXISTS source TEXT")
+

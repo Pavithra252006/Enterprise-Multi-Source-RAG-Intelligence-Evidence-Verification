@@ -15,3 +15,4 @@ pg16.zip
 *.sqlite
 *.sqlite3
 uvicorn.log
+backend/data/uploads/

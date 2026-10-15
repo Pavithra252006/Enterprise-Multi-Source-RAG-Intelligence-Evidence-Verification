@@ -59,7 +59,7 @@ class Document(Base):
     version: Mapped[str] = mapped_column(String(20), nullable=True)
     doc_date: Mapped[str] = mapped_column(String(20), nullable=True)        # YYYY-MM-DD
     access_level: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=1)
-    allowed_roles: Mapped[list] = mapped_column(ARRAY(String), nullable=True)
+    allowed_roles: Mapped[list] = mapped_column(ARRAY(String).with_variant(JSON, "sqlite"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_now, nullable=False
     )
@@ -78,10 +78,11 @@ class Chunk(Base):
     chunk_index: Mapped[int] = mapped_column(Integer, nullable=False)
     text: Mapped[str] = mapped_column(Text, nullable=False)
     page_or_row: Mapped[str] = mapped_column(String(30), nullable=True)    # "page 3" | "row 42"
+    source: Mapped[str] = mapped_column(Text, nullable=True)               # originating file name / URL
     doc_date: Mapped[str] = mapped_column(String(20), nullable=True)
     version: Mapped[str] = mapped_column(String(20), nullable=True)
     access_level: Mapped[int] = mapped_column(SmallInteger, nullable=False, default=1)
-    allowed_roles: Mapped[list] = mapped_column(ARRAY(String), nullable=True)
+    allowed_roles: Mapped[list] = mapped_column(ARRAY(String).with_variant(JSON, "sqlite"), nullable=True)
     faiss_id: Mapped[int] = mapped_column(Integer, nullable=True, unique=True)
 
     document: Mapped["Document"] = relationship(back_populates="chunks")
