@@ -1,7 +1,7 @@
 import React from 'react';
 import { USERS } from '../api';
 
-export default function TopBar({ currentUser, onSelectUser, isConnected }) {
+export default function TopBar({ currentUser, onSelectUser, isConnected, activeTab, onSelectTab }) {
   return (
     <header className="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
       {/* Brand & Title */}
@@ -26,6 +26,37 @@ export default function TopBar({ currentUser, onSelectUser, isConnected }) {
             Clearance-Gated Retrieval • Cross-Encoder Rerank • Contradiction Resolution
           </p>
         </div>
+      </div>
+
+      {/* Center Tab Navigation */}
+      <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800">
+        <button
+          onClick={() => onSelectTab('workspace')}
+          className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
+            activeTab === 'workspace'
+              ? 'bg-indigo-600 text-white shadow-sm'
+              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+          }`}
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+          </svg>
+          <span>Q&A Workspace</span>
+        </button>
+
+        <button
+          onClick={() => onSelectTab('evaluation')}
+          className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
+            activeTab === 'evaluation'
+              ? 'bg-indigo-600 text-white shadow-sm'
+              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+          }`}
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+          <span>Evaluation</span>
+        </button>
       </div>
 
       {/* User Switcher & Status */}

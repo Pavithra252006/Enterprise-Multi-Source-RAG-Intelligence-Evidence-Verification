@@ -4,10 +4,12 @@ import Sidebar from './components/Sidebar';
 import ChatArea from './components/ChatArea';
 import EvidenceDrawer from './components/EvidenceDrawer';
 import UploadModal from './components/UploadModal';
+import EvaluationTab from './components/EvaluationTab';
 import { USERS, askQuestion, getDocuments, checkHealth } from './api';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(USERS[0]); // Default to Intern
+  const [activeTab, setActiveTab] = useState('workspace'); // 'workspace' | 'evaluation'
   const [documents, setDocuments] = useState([]);
   const [isLoadingDocs, setIsLoadingDocs] = useState(false);
   const [isConnected, setIsConnected] = useState(true);
@@ -127,36 +129,43 @@ export default function App() {
         </div>
       )}
 
-      {/* Top Bar with user switcher */}
+      {/* Top Bar with user switcher & tabs */}
       <TopBar
         currentUser={currentUser}
         onSelectUser={handleSelectUser}
         isConnected={isConnected}
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
       />
 
-      {/* Main Workspace: Sidebar + Chat */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left Sidebar */}
-        <Sidebar
-          documents={documents}
-          currentUser={currentUser}
-          onOpenUpload={() => setIsUploadOpen(true)}
-          isLoadingDocs={isLoadingDocs}
-        />
-
-        {/* Center Main Q&A Area */}
-        <main className="flex-1 flex flex-col bg-slate-950/40 overflow-hidden">
-          <ChatArea
+      {/* Main Content Area */}
+      {activeTab === 'evaluation' ? (
+        <EvaluationTab />
+      ) : (
+        /* Main Workspace: Sidebar + Chat */
+        <div className="flex-1 flex overflow-hidden">
+          {/* Left Sidebar */}
+          <Sidebar
+            documents={documents}
             currentUser={currentUser}
-            onAskQuestion={handleAsk}
-            isLoading={isLoadingQuery}
-            currentQuery={currentQuery}
-            response={queryResponse}
-            error={queryError}
-            onOpenCitation={handleOpenCitation}
+            onOpenUpload={() => setIsUploadOpen(true)}
+            isLoadingDocs={isLoadingDocs}
           />
-        </main>
-      </div>
+
+          {/* Center Main Q&A Area */}
+          <main className="flex-1 flex flex-col bg-slate-950/40 overflow-hidden">
+            <ChatArea
+              currentUser={currentUser}
+              onAskQuestion={handleAsk}
+              isLoading={isLoadingQuery}
+              currentQuery={currentQuery}
+              response={queryResponse}
+              error={queryError}
+              onOpenCitation={handleOpenCitation}
+            />
+          </main>
+        </div>
+      )}
 
       {/* Evidence Slide-Over Drawer */}
       <EvidenceDrawer

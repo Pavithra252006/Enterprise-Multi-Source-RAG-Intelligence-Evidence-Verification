@@ -1,0 +1,281 @@
+{
+  "total_questions": 20,
+  "retrieval_comparison": [
+    {
+      "method": "BM25 (Lexical Only)",
+      "recall_at_6": 1.0,
+      "mrr": 0.8646
+    },
+    {
+      "method": "Vector (FAISS Dense Only)",
+      "recall_at_6": 1.0,
+      "mrr": 0.9688
+    },
+    {
+      "method": "Hybrid (RRF k=60)",
+      "recall_at_6": 0.8125,
+      "mrr": 0.75
+    },
+    {
+      "method": "Hybrid + Rerank (CrossEncoder)",
+      "recall_at_6": 0.8125,
+      "mrr": 0.8125
+    }
+  ],
+  "metrics": {
+    "citation_correctness": 1.0,
+    "factual_accuracy": 0.65,
+    "unsupported_claim_rate": 0.0,
+    "access_control_leakage": {
+      "leaked_chunks": 0,
+      "leaked_words": 0,
+      "leakage_rate": 0.0
+    },
+    "abstention_precision": 0.7778,
+    "abstention_recall": 1.0,
+    "abstention_accuracy": 0.9,
+    "conflict_detection_rate": 1.0
+  },
+  "eval_records": [
+    {
+      "id": 1,
+      "question": "What is the password length requirement under Acme Corp IT Security Policy?",
+      "type": "factual",
+      "role": "Analyst",
+      "abstained": false,
+      "expected_abstain": false,
+      "confidence": 1.0,
+      "claims_count": 1,
+      "conflicts_count": 0,
+      "status": "PASS"
+    },
+    {
+      "id": 2,
+      "question": "What automated expense portal is mandatory for expense reimbursement under the 2024 policy?",
+      "type": "factual",
+      "role": "Analyst",
+      "abstained": false,
+      "expected_abstain": false,
+      "confidence": 1.0,
+      "claims_count": 2,
+      "conflicts_count": 2,
+      "status": "PASS"
+    },
+    {
+      "id": 3,
+      "question": "What is the annual software subscription contract value for CloudNest Technologies?",
+      "type": "factual",
+      "role": "Manager",
+      "abstained": false,
+      "expected_abstain": false,
+      "confidence": 1.0,
+      "claims_count": 1,
+      "conflicts_count": 0,
+      "status": "PASS"
+    },
+    {
+      "id": 4,
+      "question": "What was Acme Corp's total gross revenue in FY2024?",
+      "type": "factual",
+      "role": "Analyst",
+      "abstained": false,
+      "expected_abstain": false,
+      "confidence": 1.0,
+      "claims_count": 1,
+      "conflicts_count": 2,
+      "status": "PASS"
+    },
+    {
+      "id": 5,
+      "question": "How many days per week can Acme Corp employees work remotely?",
+      "type": "conflict",
+      "role": "Executive",
+      "abstained": false,
+      "expected_abstain": false,
+      "confidence": 1.0,
+      "claims_count": 2,
+      "conflicts_count": 2,
+      "status": "PASS"
+    },
+    {
+      "id": 6,
+      "question": "What is the maximum daily expense reimbursement limit for domestic travel?",
+      "type": "conflict",
+      "role": "Analyst",
+      "abstained": false,
+      "expected_abstain": false,
+      "confidence": 1.0,
+      "claims_count": 2,
+      "conflicts_count": 2,
+      "status": "PASS"
+    },
+    {
+      "id": 7,
+      "question": "What is the official total company headcount of Acme Corp?",
+      "type": "conflict",
+      "role": "Analyst",
+      "abstained": false,
+      "expected_abstain": false,
+      "confidence": 1.0,
+      "claims_count": 2,
+      "conflicts_count": 4,
+      "status": "PASS"
+    },
+    {
+      "id": 8,
+      "question": "What was the reported Q3 revenue for Acme Corp?",
+      "type": "conflict",
+      "role": "Analyst",
+      "abstained": false,
+      "expected_abstain": false,
+      "confidence": 1.0,
+      "claims_count": 1,
+      "conflicts_count": 2,
+      "status": "PASS"
+    },
+    {
+      "id": 9,
+      "question": "What is the executive compensation package and base salary for 2024?",
+      "type": "restricted",
+      "role": "Intern",
+      "abstained": true,
+      "expected_abstain": true,
+      "confidence": 0.0,
+      "claims_count": 0,
+      "conflicts_count": 0,
+      "status": "PASS"
+    },
+    {
+      "id": 10,
+      "question": "What are the executive retention bonus terms for Project Synapse?",
+      "type": "restricted",
+      "role": "Analyst",
+      "abstained": true,
+      "expected_abstain": true,
+      "confidence": 0.0,
+      "claims_count": 0,
+      "conflicts_count": 0,
+      "status": "PASS"
+    },
+    {
+      "id": 11,
+      "question": "What is the total contract value and primary contact for vendor V001 CloudNest Technologies?",
+      "type": "restricted",
+      "role": "Intern",
+      "abstained": true,
+      "expected_abstain": true,
+      "confidence": 0.0,
+      "claims_count": 0,
+      "conflicts_count": 0,
+      "status": "PASS"
+    },
+    {
+      "id": 12,
+      "question": "What is the executive compensation package and base salary for 2024?",
+      "type": "restricted",
+      "role": "Executive",
+      "abstained": false,
+      "expected_abstain": false,
+      "confidence": 1.0,
+      "claims_count": 2,
+      "conflicts_count": 3,
+      "status": "PASS"
+    },
+    {
+      "id": 13,
+      "question": "What is the capital city of Mars and its atmospheric temperature?",
+      "type": "unanswerable",
+      "role": "Executive",
+      "abstained": true,
+      "expected_abstain": true,
+      "confidence": 0.0,
+      "claims_count": 0,
+      "conflicts_count": 0,
+      "status": "PASS"
+    },
+    {
+      "id": 14,
+      "question": "Who won the 2026 FIFA World Cup and what was the final match score?",
+      "type": "unanswerable",
+      "role": "Analyst",
+      "abstained": true,
+      "expected_abstain": true,
+      "confidence": 0.0,
+      "claims_count": 0,
+      "conflicts_count": 0,
+      "status": "PASS"
+    },
+    {
+      "id": 15,
+      "question": "What is the corporate policy regarding teleportation and time travel devices?",
+      "type": "unanswerable",
+      "role": "Manager",
+      "abstained": true,
+      "expected_abstain": true,
+      "confidence": 0.0,
+      "claims_count": 0,
+      "conflicts_count": 0,
+      "status": "PASS"
+    },
+    {
+      "id": 16,
+      "question": "What is the secret recipe for Acme Corp cafeteria's signature tomato soup?",
+      "type": "unanswerable",
+      "role": "Intern",
+      "abstained": true,
+      "expected_abstain": true,
+      "confidence": 0.0,
+      "claims_count": 0,
+      "conflicts_count": 0,
+      "status": "PASS"
+    },
+    {
+      "id": 17,
+      "question": "Which vendor provides cloud infrastructure and what security policy must remote workers follow when accessing it?",
+      "type": "multi-hop",
+      "role": "Manager",
+      "abstained": false,
+      "expected_abstain": false,
+      "confidence": 1.0,
+      "claims_count": 1,
+      "conflicts_count": 0,
+      "status": "PASS"
+    },
+    {
+      "id": 18,
+      "question": "What is the domestic travel expense limit under the updated policy and does it require using ExpenseIQ?",
+      "type": "multi-hop",
+      "role": "Analyst",
+      "abstained": true,
+      "expected_abstain": false,
+      "confidence": 0.0,
+      "claims_count": 0,
+      "conflicts_count": 0,
+      "status": "PASS"
+    },
+    {
+      "id": 19,
+      "question": "What are the remote work day limits under version 2.0 and what IT security requirements apply to home offices?",
+      "type": "multi-hop",
+      "role": "Analyst",
+      "abstained": true,
+      "expected_abstain": false,
+      "confidence": 0.0,
+      "claims_count": 0,
+      "conflicts_count": 0,
+      "status": "PASS"
+    },
+    {
+      "id": 20,
+      "question": "What is the CEO base salary and how does the Board Compensation Committee review executive pay?",
+      "type": "multi-hop",
+      "role": "Executive",
+      "abstained": false,
+      "expected_abstain": false,
+      "confidence": 1.0,
+      "claims_count": 2,
+      "conflicts_count": 1,
+      "status": "PASS"
+    }
+  ]
+}

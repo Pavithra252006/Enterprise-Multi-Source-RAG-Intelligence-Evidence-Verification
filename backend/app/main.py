@@ -27,7 +27,7 @@ from app.retrieval.router import router as retrieval_router, api_router as retri
 from app.generation.router import router as generation_router, api_router as generation_api_router
 from app.verification.router import router as verification_router
 from app.auth.router import router as auth_router
-from app.eval.router import router as eval_router
+from app.eval.router import router as eval_router, api_router as eval_api_router
 
 settings = get_settings()
 
@@ -96,6 +96,7 @@ app.include_router(generation_api_router)  # /ask
 app.include_router(verification_router, prefix="/api/v1/verification", tags=["verification"])
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(eval_router, prefix="/api/v1/eval", tags=["eval"])
+app.include_router(eval_api_router)  # /eval/results, /eval/run
 
 
 # ─────────────────────────────────────────────────────────────────────────────

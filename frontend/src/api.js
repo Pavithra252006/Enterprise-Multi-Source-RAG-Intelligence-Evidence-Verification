@@ -49,3 +49,13 @@ export async function checkHealth() {
     return { status: 'offline', error: err.message };
   }
 }
+
+export async function getEvalResults() {
+  const response = await client.get('/eval/results');
+  return response.data;
+}
+
+export async function runEvaluation() {
+  const response = await client.post('/eval/run');
+  return response.data;
+}
