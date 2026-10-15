@@ -27,9 +27,13 @@ class Settings(BaseSettings):
     CHUNK_OVERLAP: int = 64
 
     # ── Retrieval ────────────────────────────────────────────────────────
-    TOP_K_DENSE: int = 10
-    TOP_K_BM25: int = 10
-    TOP_K_RERANK: int = 5
+    TOP_K_DENSE: int = 30
+    TOP_K_BM25: int = 30
+    TOP_K_FUSION: int = 20
+    RRF_K: int = 60
+    TOP_K_RERANK: int = 6
+    ADAPTIVE_RERANK_THRESHOLD: float = 0.0
+    MAX_ADAPTIVE_ROUNDS: int = 2
 
     # ── App ──────────────────────────────────────────────────────────────
     APP_ENV: str = "development"

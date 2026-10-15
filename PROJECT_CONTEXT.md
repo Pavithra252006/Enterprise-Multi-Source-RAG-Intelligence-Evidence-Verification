@@ -154,15 +154,27 @@ These contradictions are intentionally embedded in the corpus to test the verifi
 
 ## Retrieval Pipeline Details
 
-### Hybrid Search (RRF Fusion)
+### Hybrid Search (RRF Fusion) & Access Gate
 
 ```
-Dense candidates (FAISS top-K)  ─┐
-                                  ├─► RRF Fusion ─► Reranker ─► Top-N chunks
-BM25 candidates (BM25 top-K)   ─┘
+Query + X-User-Id Header
+        │
+        ▼
+Dense (FAISS top 30)  ──┐
+                        ├─► RRF Fusion (k=60) ─► Top 20 Candidates ─► Access Filter (can_access) ─► Reranker (Top 6)
+Lexical (BM25 top 30) ──┘                                           [Strict Clearance Gate]           │
+                                                                                                      ▼
+                                                                                   [Score < Threshold Check]
+                                                                                   ├─► Yes: Adaptive Rewrite (Max 2 Rounds)
+                                                                                   └─► No: Return Ranked Evidence + Trace
 ```
 
 **RRF formula:** `score(d) = Σ 1 / (k + rank_i(d))`  where `k = 60`
+**Access Rule:** Filter by user clearance and allowed roles BEFORE reranking and BEFORE passing to LLM.
+**Reranker:** `BAAI/bge-reranker-base` CrossEncoder, keeps top 6 candidates.
+**Adaptive Retrieval:** If best rerank score < threshold (tuned default `0.40`), invokes query rewriting up to 2 extra rounds, returning an audit trace.
+**Endpoint:** `POST /retrieve` with `X-User-Id` header.
+
 
 ### Contradiction Detection Algorithm
 
