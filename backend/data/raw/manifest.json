@@ -1,0 +1,109 @@
+[
+  {
+    "filename": "policy_handbook_v1_2022.pdf",
+    "title": "Acme Corp Employee Policy Handbook v1.0 (2022)",
+    "source_type": "pdf",
+    "version": "1.0",
+    "doc_date": "2022-01-01",
+    "access_level": 2,
+    "allowed_roles": [
+      "analyst",
+      "manager",
+      "executive"
+    ],
+    "superseded_by": "policy_handbook_v2_2024.pdf",
+    "notes": "Contradicts v2 on remote-work days (2 vs 3) and expense limit ($150 vs $200)"
+  },
+  {
+    "filename": "policy_handbook_v2_2024.pdf",
+    "title": "Acme Corp Employee Policy Handbook v2.0 (2024)",
+    "source_type": "pdf",
+    "version": "2.0",
+    "doc_date": "2024-03-01",
+    "access_level": 2,
+    "allowed_roles": [
+      "analyst",
+      "manager",
+      "executive"
+    ],
+    "notes": "Current authoritative policy"
+  },
+  {
+    "filename": "q3_sales_headcount.xlsx",
+    "title": "Q3 2024 Sales & Headcount Report",
+    "source_type": "xlsx",
+    "version": "1.0",
+    "doc_date": "2024-10-01",
+    "access_level": 2,
+    "allowed_roles": [
+      "analyst",
+      "manager",
+      "executive"
+    ],
+    "notes": "Headcount 312 conflicts with 2021 annual report figure 290"
+  },
+  {
+    "filename": "it_security_policy.html",
+    "title": "Acme Corp IT Security Policy v3.2",
+    "source_type": "html",
+    "version": "3.2",
+    "doc_date": "2024-01-15",
+    "access_level": 1,
+    "allowed_roles": null,
+    "notes": "Public – all employees"
+  },
+  {
+    "filename": "vendor_contracts.csv",
+    "title": "Active Vendor Contracts Register",
+    "source_type": "csv",
+    "version": "1.0",
+    "doc_date": "2024-10-01",
+    "access_level": 3,
+    "allowed_roles": [
+      "manager",
+      "executive"
+    ],
+    "notes": "Confidential – managers and above"
+  },
+  {
+    "filename": "executive_compensation.pdf",
+    "title": "Acme Corp Executive Compensation Report 2024",
+    "source_type": "pdf",
+    "version": "1.0",
+    "doc_date": "2024-01-01",
+    "access_level": 4,
+    "allowed_roles": [
+      "executive"
+    ],
+    "notes": "RESTRICTED – board/executive only"
+  },
+  {
+    "filename": "annual_report_2021.pdf",
+    "title": "Acme Corp Annual Report 2021 (Outdated)",
+    "source_type": "pdf",
+    "version": "2021",
+    "doc_date": "2022-03-15",
+    "access_level": 2,
+    "allowed_roles": [
+      "analyst",
+      "manager",
+      "executive"
+    ],
+    "superseded_by": "annual_report_2024.pdf",
+    "notes": "OUTDATED – superseded by 2024 report. Headcount 290 conflicts with 2024 data 312"
+  },
+  {
+    "filename": "annual_report_2024.pdf",
+    "title": "Acme Corp Annual Report 2024",
+    "source_type": "pdf",
+    "version": "2024",
+    "doc_date": "2024-12-01",
+    "access_level": 2,
+    "allowed_roles": [
+      "analyst",
+      "manager",
+      "executive"
+    ],
+    "notes": "Current – supersedes all prior annual reports"
+  }
+]

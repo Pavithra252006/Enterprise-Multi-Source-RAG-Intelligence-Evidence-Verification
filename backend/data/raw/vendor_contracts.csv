@@ -1,0 +1,11 @@
+vendor_id,vendor_name,category,contract_value_usd,start_date,end_date,auto_renew,primary_contact,sla_uptime_pct,status
+V001,CloudNest Technologies,Cloud Infrastructure,480000,2023-01-01,2025-12-31,Yes,alice.wu@cloudnest.com,99.9,Active
+V002,DataShield Security,Cybersecurity,175000,2024-03-01,2026-02-28,No,bob.martin@datashield.io,99.5,Active
+V003,OfficePrime Supplies,Facilities,62000,2024-01-01,2024-12-31,Yes,orders@officeprime.com,N/A,Active
+V004,SwiftLogix Courier,Logistics,38500,2023-06-01,2025-05-31,Yes,contracts@swiftlogix.com,N/A,Active
+V005,TalentBridge Staffing,HR / Staffing,220000,2024-01-15,2025-01-14,No,enterprise@talentbridge.com,N/A,Active
+V006,InsightBI Analytics,Business Intelligence,95000,2023-09-01,2025-08-31,Yes,sales@insightbi.co,99.0,Active
+V007,LegalEagle LLP,Legal Services,310000,2022-07-01,2026-06-30,No,acme@legaleagle.com,N/A,Active
+V008,PrintWorks Co.,Print & Marketing,28000,2024-04-01,2025-03-31,Yes,b2b@printworks.com,N/A,Active
+V009,NetStream ISP,Connectivity,54000,2023-03-15,2026-03-14,Yes,enterprise@netstream.net,99.8,Active
+V010,AuditPro Partners,Audit & Compliance,140000,2024-02-01,2025-01-31,No,acme@auditpro.com,N/A,Active

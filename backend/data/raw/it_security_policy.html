@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acme Corp – IT Security Policy</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 900px; margin: 2rem auto; line-height: 1.7; color: #222; }
+    h1 { color: #003087; border-bottom: 2px solid #003087; padding-bottom: 0.5rem; }
+    h2 { color: #005EB8; margin-top: 2rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+    th, td { border: 1px solid #aaa; padding: 8px 12px; text-align: left; }
+    th { background: #003087; color: white; }
+    .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 0.75rem 1rem; }
+    footer { margin-top: 3rem; font-size: 0.85rem; color: #666; }
+  </style>
+</head>
+<body>
+  <h1>Acme Corp IT Security Policy</h1>
+  <p><strong>Document ID:</strong> IT-SEC-001 &nbsp;|&nbsp;
+     <strong>Version:</strong> 3.2 &nbsp;|&nbsp;
+     <strong>Effective:</strong> 2024-01-15 &nbsp;|&nbsp;
+     <strong>Owner:</strong> Chief Information Security Officer</p>
+
+  <h2>1. Purpose and Scope</h2>
+  <p>This policy establishes mandatory security controls for all Acme Corp employees, contractors,
+  and third-party vendors who access Acme Corp information systems. Compliance is mandatory and
+  non-compliance may result in disciplinary action up to and including termination of employment or contract.</p>
+
+  <h2>2. Password Requirements</h2>
+  <table>
+    <tr><th>Parameter</th><th>Requirement</th></tr>
+    <tr><td>Minimum length</td><td>14 characters</td></tr>
+    <tr><td>Complexity</td><td>Must include uppercase, lowercase, digit, and symbol</td></tr>
+    <tr><td>Maximum age</td><td>90 days</td></tr>
+    <tr><td>History</td><td>Last 12 passwords cannot be reused</td></tr>
+    <tr><td>Multi-Factor Authentication</td><td>Mandatory for all accounts</td></tr>
+  </table>
+
+  <h2>3. Device Security</h2>
+  <p>All endpoints (laptops, mobile devices) that access Acme Corp resources must:</p>
+  <ul>
+    <li>Have approved endpoint detection and response (EDR) software installed and active</li>
+    <li>Maintain OS and application patches within 7 days of release for critical vulnerabilities</li>
+    <li>Use full-disk encryption (BitLocker for Windows, FileVault for macOS)</li>
+    <li>Be enrolled in Acme Corp Mobile Device Management (MDM) system</li>
+    <li>Automatically lock after 5 minutes of inactivity</li>
+  </ul>
+
+  <h2>4. Remote Access</h2>
+  <p>All remote access to Acme Corp internal networks must use the company-approved VPN client.
+  Split tunnelling is prohibited. Employees working from public networks (cafes, airports) must
+  use the VPN at all times.</p>
+
+  <div class="warning">
+    <strong>⚠ Important:</strong> Connecting to Acme Corp systems from a personal device that
+    has not been approved via the BYOD programme is strictly prohibited.
+  </div>
+
+  <h2>5. Data Classification and Handling</h2>
+  <table>
+    <tr><th>Level</th><th>Label</th><th>Examples</th><th>Encryption Required</th></tr>
+    <tr><td>1</td><td>Public</td><td>Marketing materials, job postings</td><td>In transit only</td></tr>
+    <tr><td>2</td><td>Internal</td><td>Internal memos, project plans</td><td>In transit and at rest</td></tr>
+    <tr><td>3</td><td>Confidential</td><td>Customer data, contracts</td><td>Always + access control</td></tr>
+    <tr><td>4</td><td>Restricted</td><td>Board materials, exec compensation</td><td>Always + strict need-to-know</td></tr>
+  </table>
+
+  <h2>6. Incident Reporting</h2>
+  <p>All suspected security incidents (phishing, malware, data loss) must be reported to
+  <strong>security@acmecorp.internal</strong> within <strong>1 hour</strong> of discovery.
+  Employees must not attempt to remediate incidents independently.</p>
+
+  <h2>7. Acceptable Use</h2>
+  <p>Acme Corp systems may be used for legitimate business purposes only. Prohibited activities include
+  cryptocurrency mining, personal cloud storage sync, and installation of unapproved software.
+  All internet traffic is monitored and logged for security purposes.</p>
+
+  <h2>8. AI Tool Usage</h2>
+  <p>External AI services (including but not limited to ChatGPT, Claude, Gemini) may not be used
+  to process Acme Corp Confidential or Restricted data without explicit written approval from the CISO.
+  Violation of this policy constitutes a data breach and will be treated accordingly.</p>
+
+  <footer>
+    <p>© 2024 Acme Corp. All rights reserved. | IT Security Policy IT-SEC-001 v3.2 |
+    Next review date: 2025-01-15</p>
+  </footer>
+</body>
+</html>
