@@ -24,7 +24,7 @@ from app.schemas import HealthResponse
 # ── Router imports (stubbed modules expose empty routers) ─────────────────────
 from app.ingestion.router import router as ingestion_router, api_router as ingestion_api_router
 from app.retrieval.router import router as retrieval_router, api_router as retrieval_api_router
-from app.generation.router import router as generation_router
+from app.generation.router import router as generation_router, api_router as generation_api_router
 from app.verification.router import router as verification_router
 from app.auth.router import router as auth_router
 from app.eval.router import router as eval_router
@@ -92,6 +92,7 @@ app.include_router(ingestion_api_router)  # /ingest/upload, /documents
 app.include_router(retrieval_router, prefix="/api/v1/retrieval", tags=["retrieval"])
 app.include_router(retrieval_api_router)  # /retrieve
 app.include_router(generation_router, prefix="/api/v1/generation", tags=["generation"])
+app.include_router(generation_api_router)  # /ask
 app.include_router(verification_router, prefix="/api/v1/verification", tags=["verification"])
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(eval_router, prefix="/api/v1/eval", tags=["eval"])

@@ -178,29 +178,75 @@ Lexical (BM25 top 30) ──┘                                           [Stric
 
 ### Contradiction Detection Algorithm
 
-1. For every pair of top-N retrieved chunks that share a semantic topic:
-   - Compare `doc_date` fields — flag if dates differ by > 180 days
-   - Compare `version` fields — flag if versions differ on same document family
-   - Run NLI or embedding-similarity check for factual inconsistency
-
-2. Pass `contradictions[]` list to Claude in the system prompt with instruction to acknowledge conflicts and cite the most recent/authoritative source.
+1. For every retrieved chunk:
+   - Evaluates topic keywords across detected conflicts (Remote Work Policy, Expense Reimbursement, Headcount, Revenue).
+   - Detects pairwise divergence in values across document versions (`v1.0` vs `v2.0`) and temporal dates.
+   - Automatically resolves superseding versions (e.g. `policy_handbook_v2_2024.pdf` v2.0 supersedes `policy_handbook_v1_2022.pdf` v1.0).
+   - Formats structured conflict records: `[{topic, side_a{value,source,version,date,location}, side_b{...}, resolution, explanation, is_superseded}]`.
 
 ---
 
-## Abstention Rules
+## Phase 4: Generation, Verification & Abstention
 
-The Claude system prompt instructs the model to abstain (return `abstained: true`) when:
+### 1. Generation (`backend/app/generation/answer.py`)
+- Labeled evidence formatting: `[E1]`, `[E2]`... with title, version, date, location.
+- Claude generation prompt demanding strict evidence grounding and structured JSON:
+  ```json
+  {
+    "answer_summary": "Synthesis grounded solely in evidence",
+    "claims": [
+      {"claim_text": "...", "citation_ids": ["E1"], "importance": "high" | "low"}
+    ],
+    "insufficient_evidence": false
+  }
+  ```
+- Fast, deterministic fallback pipeline for local environments without Anthropic API keys.
 
-- No retrieved chunk has similarity above threshold
-- All relevant chunks are above the user's clearance level
-- The question requires synthesis across contradictory sources without a clear authoritative resolution
+### 2. Parallel Second-Judge Claim Verification (`backend/app/verification/verifier.py`)
+- For each generated claim, dispatches an isolated second judge call submitting only the claim and its cited text.
+- Executed in parallel using `asyncio.gather`.
+- Evaluates strict factual alignment: `SUPPORTED | PARTIAL | UNSUPPORTED` + reason + exact supporting quote span.
+- Computes overall confidence score = fraction of high-importance claims rated `SUPPORTED`.
+
+### 3. Abstention Governance
+- Uniform abstention message:
+  ```
+  "Insufficient evidence in the sources you can access."
+  ```
+- Identical message returned for inaccessible data, out-of-scope queries, or low-confidence evidence.
+- Abstention triggers:
+  1. `best_score < threshold` (default `0.40`)
+  2. `confidence < 0.60`
+  3. `insufficient_evidence == true`
+- Leaking the existence, titles, or clearance levels of restricted documents to unauthorized users is strictly prevented.
+
+### 4. Primary Q&A Endpoint: `POST /ask`
+- Header: `X-User-Id` (e.g. `intern`, `analyst`, `manager`, `executive`)
+- Request: `{"question": "...", "top_k": 5, "threshold": 0.40}`
+- Response:
+  ```json
+  {
+    "question": "...",
+    "user_id": 4,
+    "user_role": "Executive",
+    "clearance_level": 4,
+    "answer": "...",
+    "claims": [...],
+    "conflicts": [...],
+    "abstained": false,
+    "confidence": 1.0,
+    "retrieval_trace": {...}
+  }
+  ```
+- All requests and responses are logged to the `query_logs` audit table.
 
 ---
 
 ## Development Notes
 
-- **Python version:** 3.11+
-- **Database migrations:** Use Alembic (`alembic init alembic`, `alembic revision --autogenerate`)
+- **Python version:** 3.11+ (tested on Python 3.12.10)
+- **Database migrations:** SQLAlchemy async session with Alembic + SQLite/PostgreSQL dual compatibility
 - **FAISS index:** Rebuilt by running the ingestion pipeline; persisted to `backend/data/index/`
-- **BM25 index:** Rebuilt in-memory at startup from all chunk texts
-- **Model loading:** `sentence-transformers` downloads models to `~/.cache/huggingface/` on first use
+- **BM25 index:** Rebuilt and serialized with pickle (`bm25.pkl`)
+- **Model loading:** `sentence-transformers` downloads models (`BAAI/bge-small-en-v1.5`, `BAAI/bge-reranker-base`) to `~/.cache/huggingface/` on first use
+
