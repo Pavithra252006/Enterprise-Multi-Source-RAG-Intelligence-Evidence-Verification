@@ -242,11 +242,32 @@ Lexical (BM25 top 30) ──┘                                           [Stric
 
 ---
 
+## Phase 5: React Frontend Architecture
+
+The frontend is a modern Single Page Application (SPA) built with **Vite 8**, **React 19**, and **Tailwind CSS v4** in `frontend/`.
+
+### 1. Key Interfaces & Modules
+- **TopBar (`frontend/src/components/TopBar.jsx`)**: System title, live backend status indicator, and dynamic identity switcher (Intern L1, Analyst L2, Manager L3, Executive L4). Switching identity immediately re-evaluates the active question.
+- **Sidebar (`frontend/src/components/Sidebar.jsx`)**: Real-time document corpus list with search filtering, clearance level badges, version/date tags, and an "Ingest New Document" modal trigger.
+- **ChatArea (`frontend/src/components/ChatArea.jsx`)**: Responsive question input, 4 clickable benchmark questions (Remote work conflict, Executive compensation restricted, Headcount temporal, Mars out-of-scope), and loading state (`"Retrieving, reranking, verifying..."`).
+- **AnswerCard (`frontend/src/components/AnswerCard.jsx`)**: Formatted grounded answer, confidence badge (Green $\ge 0.8$, Amber $0.6-0.8$, Red $< 0.6$), second-judge claim rows with verdict icons (`SUPPORTED`, `PARTIAL`, `UNSUPPORTED`), and inline clickable citation chips (`[E1]`, `[E2]`).
+- **EvidenceDrawer (`frontend/src/components/EvidenceDrawer.jsx`)**: Slide-over drawer displaying document title, version, date, page/row location, clearance classification, verbatim text passage, and outdated tags.
+- **ConflictBanner (`frontend/src/components/ConflictBanner.jsx`)**: Side-by-side comparison of conflicting sources (Source A vs Source B) with values, dates, versions, and automated superseding resolution.
+- **AbstentionCard (`frontend/src/components/AbstentionCard.jsx`)**: Distinct dark-grey card with shield icon enforcing zero-leakage abstention: `"Insufficient evidence in the sources you can access."`
+- **UploadModal (`frontend/src/components/UploadModal.jsx`)**: Multipart form ingestion with clearance classification dropdown (Level 1 to Level 4) and index rebuilding.
+- **PipelineTrace (`frontend/src/components/PipelineTrace.jsx`)**: Collapsible diagnostic view of retrieval trace, queries, rounds, and cross-encoder scores.
+
+---
+
 ## Development Notes
 
 - **Python version:** 3.11+ (tested on Python 3.12.10)
+- **Node.js version:** v20+ (tested on Node v24.21.0)
+- **Backend server:** `python -m uvicorn app.main:app --host 0.0.0.0 --port 8000`
+- **Frontend server:** `cd frontend && npm run dev -- --host 0.0.0.0 --port 5173`
 - **Database migrations:** SQLAlchemy async session with Alembic + SQLite/PostgreSQL dual compatibility
 - **FAISS index:** Rebuilt by running the ingestion pipeline; persisted to `backend/data/index/`
 - **BM25 index:** Rebuilt and serialized with pickle (`bm25.pkl`)
 - **Model loading:** `sentence-transformers` downloads models (`BAAI/bge-small-en-v1.5`, `BAAI/bge-reranker-base`) to `~/.cache/huggingface/` on first use
+
 
