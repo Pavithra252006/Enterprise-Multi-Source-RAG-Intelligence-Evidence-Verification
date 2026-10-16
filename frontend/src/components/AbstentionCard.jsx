@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function AbstentionCard({ answer, currentUser, question }) {
+export default function AbstentionCard({ answer, currentUser, question, onQuickSwitch }) {
   return (
     <div className="rounded-2xl border border-rose-800/60 bg-gradient-to-b from-rose-950/30 via-slate-900 to-slate-950 p-7 shadow-2xl space-y-6 text-left my-4 animate-fade-in">
       {/* Header */}
@@ -65,6 +65,47 @@ export default function AbstentionCard({ answer, currentUser, question }) {
           </p>
         </div>
       </div>
+
+      {/* 1-Click Clearance Escalation Helper */}
+      {currentUser.clearance < 4 && (
+        <div className="p-4 rounded-xl bg-indigo-950/30 border border-indigo-800/40 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="space-y-0.5">
+            <span className="font-semibold text-indigo-300 flex items-center gap-1.5">
+              <span>💡</span>
+              <span>Testing higher clearance documents?</span>
+            </span>
+            <p className="text-slate-400 text-[11px]">
+              If this question requires higher clearance, switch role to immediately re-run and see the verified answer:
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            {currentUser.clearance < 2 && (
+              <button
+                onClick={() => onQuickSwitch && onQuickSwitch('EMP-2001', true)}
+                className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow transition cursor-pointer"
+              >
+                Switch to Analyst (L2) & Re-run
+              </button>
+            )}
+            {currentUser.clearance < 3 && currentUser.clearance >= 2 && (
+              <button
+                onClick={() => onQuickSwitch && onQuickSwitch('EMP-3001', true)}
+                className="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs shadow transition cursor-pointer"
+              >
+                Switch to Manager (L3) & Re-run
+              </button>
+            )}
+            {currentUser.clearance < 4 && (
+              <button
+                onClick={() => onQuickSwitch && onQuickSwitch('EMP-4001', true)}
+                className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs shadow transition cursor-pointer"
+              >
+                Switch to Executive (L4) & Re-run
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

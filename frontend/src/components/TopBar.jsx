@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function TopBar({ currentUser, onLogout, isConnected, activeTab, onSelectTab, canViewEval = true }) {
+export default function TopBar({ currentUser, onLogout, isConnected, activeTab, onSelectTab, canViewEval = true, onQuickSwitch }) {
   return (
     <header className="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
       {/* Brand & Title */}
@@ -66,19 +66,44 @@ export default function TopBar({ currentUser, onLogout, isConnected, activeTab, 
           <span className="text-slate-300 font-medium">{isConnected ? 'Backend 8000' : 'Connecting...'}</span>
         </div>
 
-        {/* Logged-in user */}
+        {/* Quick Clearance Switcher */}
+        <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+          <span className="text-[10px] uppercase font-bold text-slate-500 px-2 tracking-wider">Clearance:</span>
+          {[
+            { code: 'EMP-1001', role: 'Intern', lvl: 1, label: 'L1: Intern', activeBg: 'bg-slate-700 text-white' },
+            { code: 'EMP-2001', role: 'Analyst', lvl: 2, label: 'L2: Analyst', activeBg: 'bg-blue-600 text-white' },
+            { code: 'EMP-3001', role: 'Manager', lvl: 3, label: 'L3: Manager', activeBg: 'bg-purple-600 text-white' },
+            { code: 'EMP-4001', role: 'Executive', lvl: 4, label: 'L4: Exec', activeBg: 'bg-rose-600 text-white' },
+          ].map((p) => {
+            const isActive = currentUser.clearance === p.lvl;
+            return (
+              <button
+                key={p.code}
+                onClick={() => onQuickSwitch && onQuickSwitch(p.code)}
+                title={`Switch clearance to ${p.role} (${p.code})`}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition cursor-pointer ${
+                  isActive
+                    ? `${p.activeBg} shadow-sm font-bold scale-105`
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/80'
+                }`}
+              >
+                {p.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Logged-in user badge & logout */}
         <div className="flex items-center gap-2 bg-slate-950 p-1 pl-3 rounded-xl border border-slate-800">
           <div className="flex flex-col leading-tight">
             <span className="text-xs font-semibold text-slate-200">{currentUser.label}</span>
             <span className="text-[10px] text-slate-500">{currentUser.employeeId ? `${currentUser.employeeId} · ` : ''}{currentUser.clearanceLabel}</span>
           </div>
-          <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${currentUser.badgeColor}`}>
-            {currentUser.role} · L{currentUser.clearance}
-          </span>
           <button
             id="logout-btn"
             onClick={onLogout}
-            className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-rose-600/80 transition"
+            title="Log out"
+            className="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-rose-600/80 transition cursor-pointer"
           >
             Logout
           </button>

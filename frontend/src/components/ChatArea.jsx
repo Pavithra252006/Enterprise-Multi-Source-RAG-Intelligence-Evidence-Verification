@@ -4,34 +4,60 @@ import AbstentionCard from './AbstentionCard';
 import ConflictBanner from './ConflictBanner';
 import StatusBanner from './StatusBanner';
 
-export const SAMPLE_QUESTIONS = [
+const SAMPLE_QUESTIONS = [
   {
-    id: 'remote-work',
-    category: 'Contradiction',
-    tagColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
-    text: 'How many days per week can Acme Corp employees work remotely?',
-    hint: 'Tests v1.0 (2 days) vs v2.0 (3 days) conflict resolution',
+    id: 'password-policy',
+    category: 'Public (Level 1+)',
+    minClearance: 1,
+    minRole: 'Intern+',
+    tagColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+    text: 'What is the password length requirement under Acme Corp IT Security Policy?',
+    hint: 'Level 1+ (Accessible to all roles): 14 characters, 90-day rotation, MFA mandatory',
   },
   {
-    id: 'exec-comp',
-    category: 'Restricted (Level 4)',
-    tagColor: 'bg-rose-500/20 text-rose-300 border-rose-500/40',
-    text: 'What is the executive compensation package and base salary for 2024?',
-    hint: 'Intern/Analyst/Manager will abstain; Executive receives verified base salary',
+    id: 'remote-work',
+    category: 'Version Conflict (Level 2+)',
+    minClearance: 2,
+    minRole: 'Analyst+',
+    tagColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+    text: 'How many days per week can Acme Corp employees work remotely?',
+    hint: 'Level 2+ (Analyst, Manager, Exec): Resolves v1.0 (2 days) vs v2.0 (3 days authoritative)',
   },
   {
     id: 'headcount',
-    category: 'Temporal Conflict',
+    category: 'Temporal Conflict (Level 2+)',
+    minClearance: 2,
+    minRole: 'Analyst+',
     tagColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40',
     text: "What is Acme Corp's current workforce headcount?",
-    hint: 'Tests outdated 2021 report (290) vs current 2024 count (312)',
+    hint: 'Level 2+ (Analyst, Manager, Exec): Resolves 2021 report (290) vs Oct 2024 count (312)',
+  },
+  {
+    id: 'vendor-contract',
+    category: 'Confidential Vendor (Level 3+)',
+    minClearance: 3,
+    minRole: 'Manager+',
+    tagColor: 'bg-purple-500/20 text-purple-300 border-purple-500/40',
+    text: 'What is the annual software subscription contract value for CloudNest Technologies?',
+    hint: 'Level 3+ (Manager, Exec): Confidential vendor_contracts.csv ($480,000 USD)',
+  },
+  {
+    id: 'exec-comp',
+    category: 'Restricted (Level 4 Only)',
+    minClearance: 4,
+    minRole: 'Executive Only',
+    tagColor: 'bg-rose-500/20 text-rose-300 border-rose-500/40',
+    text: 'What is the executive compensation package and base salary for 2024?',
+    hint: 'Level 4 Only: CEO Base salary $850,000. Lower levels blocked by access boundary',
   },
   {
     id: 'out-of-scope',
-    category: 'Abstention',
+    category: 'Ungrounded Abstention',
+    minClearance: 99,
+    minRole: 'All Roles',
     tagColor: 'bg-slate-700 text-slate-300 border-slate-600',
-    text: 'What is the capital city of Mars and its atmospheric temperature?',
-    hint: 'Ungrounded query triggers zero-leakage uniform abstention',
+    text: 'What is the corporate policy regarding teleportation and time travel devices?',
+    hint: 'Ungrounded query: Pipeline safely abstains to prevent hallucination',
   },
 ];
 
@@ -43,6 +69,7 @@ export default function ChatArea({
   response,
   error,
   onOpenCitation,
+  onQuickSwitch,
 }) {
   const [inputText, setInputText] = useState('');
 
@@ -68,33 +95,42 @@ export default function ChatArea({
             </svg>
             Benchmark Verification Scenarios
           </span>
-          <span className="text-[11px] text-slate-500">Click to run against pipeline</span>
+          <span className="text-[11px] text-slate-500">
+            Current role: <strong className="text-slate-300">{currentUser?.role} (Level {currentUser?.clearance})</strong>
+          </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-          {SAMPLE_QUESTIONS.map((q) => (
-            <button
-              key={q.id}
-              onClick={() => handleSelectSample(q.text)}
-              disabled={isLoading}
-              className="p-3 rounded-xl bg-slate-900/80 hover:bg-slate-800/80 active:bg-slate-800 border border-slate-800 hover:border-slate-700 text-left transition-all group disabled:opacity-50 cursor-pointer shadow-sm hover:shadow-md"
-            >
-              <div className="flex items-center justify-between gap-2 mb-1.5">
-                <span className={`px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase border font-mono ${q.tagColor}`}>
-                  {q.category}
-                </span>
-                <svg className="w-3.5 h-3.5 text-slate-500 group-hover:text-indigo-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-              </div>
-              <div className="text-xs font-semibold text-slate-200 group-hover:text-white line-clamp-1">
-                {q.text}
-              </div>
-              <div className="text-[11px] text-slate-400 mt-1 line-clamp-1">
-                {q.hint}
-              </div>
-            </button>
-          ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+          {SAMPLE_QUESTIONS.map((q) => {
+            const hasAccess = q.minClearance === 99 || (currentUser?.clearance || 1) >= q.minClearance;
+            return (
+              <button
+                key={q.id}
+                onClick={() => handleSelectSample(q.text)}
+                disabled={isLoading}
+                className="p-3 rounded-xl bg-slate-900/80 hover:bg-slate-800/80 active:bg-slate-800 border border-slate-800 hover:border-slate-700 text-left transition-all group disabled:opacity-50 cursor-pointer shadow-sm hover:shadow-md flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase border font-mono ${q.tagColor}`}>
+                      {q.category}
+                    </span>
+                    {q.minClearance !== 99 && (
+                      <span className={`text-[10px] font-semibold px-1.5 py-0.2 rounded ${hasAccess ? 'text-emerald-400 bg-emerald-950/60' : 'text-amber-400 bg-amber-950/60'}`}>
+                        {hasAccess ? '✓ Access' : `🔒 ${q.minRole}`}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-xs font-semibold text-slate-200 group-hover:text-white line-clamp-2">
+                    {q.text}
+                  </div>
+                </div>
+                <div className="text-[11px] text-slate-400 mt-2 line-clamp-1">
+                  {q.hint}
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -190,6 +226,7 @@ export default function ChatArea({
               answer={response.answer}
               currentUser={currentUser}
               question={response.question || currentQuery}
+              onQuickSwitch={onQuickSwitch}
             />
           ) : (
             <AnswerCard

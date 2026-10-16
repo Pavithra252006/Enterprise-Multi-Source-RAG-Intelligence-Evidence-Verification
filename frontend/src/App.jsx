@@ -6,7 +6,7 @@ import EvidenceDrawer from './components/EvidenceDrawer';
 import UploadModal from './components/UploadModal';
 import EvaluationTab from './components/EvaluationTab';
 import LoginPage from './components/LoginPage';
-import { USERS, askQuestion, getDocuments, checkHealth, fetchMe, getToken, setToken } from './api';
+import { USERS, askQuestion, getDocuments, checkHealth, fetchMe, getToken, setToken, login } from './api';
 
 const toUiUser = (u) => {
   const base = USERS.find((x) => x.role === u.role) || USERS[0];
@@ -90,6 +90,22 @@ export default function App() {
     setIsDrawerOpen(false);
   };
 
+  const handleQuickSwitch = async (accessCode, autoRerun = false) => {
+    try {
+      const data = await login(accessCode);
+      setToken(data.token);
+      const u = toUiUser(data.user);
+      setCurrentUser(u);
+      showToast(`Switched clearance to ${u.role} (${u.clearanceLabel})`, 'success');
+      if (autoRerun && currentQuery) {
+        handleAsk(currentQuery, u);
+      }
+    } catch (err) {
+      console.error('Failed to quick-switch user:', err);
+      showToast('Could not switch clearance', 'error');
+    }
+  };
+
   if (!authChecked) return <div className="min-h-screen bg-slate-950" />;
   if (!currentUser) return <LoginPage onLoggedIn={handleLoggedIn} />;
 
@@ -132,7 +148,6 @@ export default function App() {
     }
   };
 
-
   // Open specific citation in drawer
   const handleOpenCitation = (citationId) => {
     setSelectedCitationId(citationId);
@@ -168,6 +183,7 @@ export default function App() {
         activeTab={activeTab}
         onSelectTab={setActiveTab}
         canViewEval={canViewEval}
+        onQuickSwitch={handleQuickSwitch}
       />
 
       {/* Main Content Area */}
@@ -194,6 +210,7 @@ export default function App() {
               response={queryResponse}
               error={queryError}
               onOpenCitation={handleOpenCitation}
+              onQuickSwitch={handleQuickSwitch}
             />
           </main>
         </div>
