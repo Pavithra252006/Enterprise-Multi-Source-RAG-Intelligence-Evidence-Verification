@@ -1,0 +1,37 @@
+# ==============================================================================
+# Render Blueprint Specification (render.yaml)
+# Docs: https://render.com/docs/blueprint-spec
+# ==============================================================================
+
+services:
+  # FastAPI Enterprise RAG Backend
+  - type: web
+    name: enterprise-rag-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: starter
+    region: oregon
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: CORS_ORIGINS
+        value: https://*.vercel.app,http://localhost:5173
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: CLAUDE_MODEL
+        value: claude-3-5-sonnet-20241022
+      - key: DATABASE_URL
+        value: sqlite+aiosqlite:///backend/data/rag.db
+      - key: EMBED_MODEL
+        value: BAAI/bge-small-en-v1.5
+      - key: RERANK_MODEL
+        value: BAAI/bge-reranker-base
+      - key: FAISS_INDEX_PATH
+        value: backend/data/index/faiss.index
+      - key: FAISS_META_PATH
+        value: backend/data/index/faiss_meta.json

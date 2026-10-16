@@ -159,6 +159,13 @@ Or start manually:
 
 Open your browser at **`http://localhost:5173`**.
 
+### Step 7: Cloud Production Deployment (Render + Vercel)
+The platform is fully containerized and pre-configured for production cloud deployment:
+* **Backend (FastAPI + FAISS + PyTorch)**: Deployed to [Render](https://render.com) using the included `Dockerfile` and `render.yaml` Blueprint.
+* **Frontend (React 19 + Vite)**: Deployed to [Vercel](https://vercel.com) with global edge CDN distribution and SPA routing.
+
+👉 For complete step-by-step setup and environment configuration, see the [Deployment Guide](DEPLOYMENT.md).
+
 ---
 
 ## 5. Demo Users & Clearance Access Tiers

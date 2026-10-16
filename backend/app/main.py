@@ -71,11 +71,33 @@ def _warm_models() -> None:
         print(f"Model warm-up skipped: {exc}")
 
 
+async def _ensure_corpus_ingested() -> None:
+    try:
+        from pathlib import Path
+        from sqlalchemy import func, select
+        from app.models import Chunk
+        from app.ingestion.ingest import run as run_ingest
+
+        async with AsyncSessionLocal() as session:
+            count = (await session.execute(select(func.count(Chunk.id)))).scalar_one()
+            if count == 0:
+                manifest_path = Path(__file__).resolve().parent.parent / "data" / "raw" / "manifest.json"
+                if manifest_path.exists():
+                    print("No chunks found in database. Automatically ingesting initial corpus from manifest...")
+                    await run_ingest(manifest_path)
+                    print("Corpus auto-ingestion completed.")
+                else:
+                    print(f"Manifest not found at {manifest_path}; skipping auto-ingestion.")
+    except Exception as exc:  # noqa: BLE001
+        print(f"Corpus auto-ingestion check skipped/warning: {exc}")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
     await seed_users()
     await seed_employees()
+    await _ensure_corpus_ingested()
     threading.Thread(target=_warm_models, daemon=True).start()
     yield
 
@@ -92,10 +114,11 @@ app = FastAPI(
 )
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
-origins = [o.strip() for o in settings.CORS_ORIGINS.split(",")]
+origins = [o.strip() for o in settings.CORS_ORIGINS.split(",") if o.strip()]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=r"^https://.*\.vercel\.app$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
