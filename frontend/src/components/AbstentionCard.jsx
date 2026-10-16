@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function AbstentionCard({ answer, currentUser, question }) {
   return (
-    <div className="rounded-2xl border border-slate-700 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 p-7 shadow-2xl space-y-6 text-left my-4 animate-fade-in">
+    <div className="rounded-2xl border border-rose-800/60 bg-gradient-to-b from-rose-950/30 via-slate-900 to-slate-950 p-7 shadow-2xl space-y-6 text-left my-4 animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-slate-800 pb-4">
         <div className="flex items-center gap-3">

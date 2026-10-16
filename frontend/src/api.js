@@ -4,8 +4,28 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 const client = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 45000,
+  timeout: 180000,
 });
+
+const TOKEN_KEY = 'rag_token';
+export const getToken = () => localStorage.getItem(TOKEN_KEY);
+export const setToken = (t) => (t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY));
+
+client.interceptors.request.use((config) => {
+  const t = getToken();
+  if (t) config.headers.Authorization = `Bearer ${t}`;
+  return config;
+});
+
+export async function login(accessCode) {
+  const response = await client.post('/api/v1/auth/login', { access_code: accessCode });
+  return response.data;
+}
+
+export async function fetchMe() {
+  const response = await client.get('/api/v1/auth/me');
+  return response.data;
+}
 
 export const USERS = [
   { id: 1, name: 'intern', label: 'Alex Chen', role: 'Intern', clearance: 1, clearanceLabel: 'Level 1: Public', badgeColor: 'bg-slate-700 text-slate-200' },

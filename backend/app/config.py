@@ -32,8 +32,8 @@ class Settings(BaseSettings):
     TOP_K_FUSION: int = 20
     RRF_K: int = 60
     TOP_K_RERANK: int = 6
-    ADAPTIVE_RERANK_THRESHOLD: float = 0.0
-    MAX_ADAPTIVE_ROUNDS: int = 2
+    ADAPTIVE_RERANK_THRESHOLD: float = 0.25
+    MAX_ADAPTIVE_ROUNDS: int = 1
 
     # ── App ──────────────────────────────────────────────────────────────
     APP_ENV: str = "development"

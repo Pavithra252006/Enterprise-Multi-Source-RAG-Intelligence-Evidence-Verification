@@ -30,3 +30,26 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #475569;
 }
+
+/* Outcome banner animations */
+@keyframes pop-in {
+  0% { opacity: 0; transform: scale(0.94) translateY(8px); }
+  60% { transform: scale(1.02); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes draw-check {
+  from { stroke-dashoffset: 30; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes ring-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  100% { box-shadow: 0 0 0 18px rgba(16, 185, 129, 0); }
+}
+@keyframes glow-green {
+  0%, 100% { box-shadow: 0 0 18px rgba(16, 185, 129, 0.25); }
+  50% { box-shadow: 0 0 34px rgba(16, 185, 129, 0.5); }
+}
+.anim-pop { animation: pop-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.anim-draw { stroke-dasharray: 30; animation: draw-check 0.6s 0.25s ease-out both; }
+.anim-ring { animation: ring-pulse 1.4s ease-out 2; }
+.anim-glow-green { animation: glow-green 2.4s ease-in-out infinite; }

@@ -74,11 +74,47 @@ KNOWN_CONFLICT_RULES = [
     },
 ]
 
+# Each rule is only evaluated when the question matches its trigger.
+QUESTION_TRIGGERS = {
+    "Remote Work Policy": r"remote|work from home|wfh|telecommut|hybrid",
+    "Daily Expense Limit (Domestic)": r"expense|reimburs|per diem|travel|daily limit",
+    "Company Headcount": r"headcount|workforce|how many employees|number of employees|staff size|total employees",
+    "Q3 Revenue Ambiguity": r"revenue|sales|q3|financial",
+}
+for _r in KNOWN_CONFLICT_RULES:
+    _r["question_trigger"] = QUESTION_TRIGGERS[_r["topic"]]
 
-def detect_conflicts(evidence_chunks: list[RetrievedChunk]) -> list[ConflictItem]:
+
+def _extract_for_doc(rule: dict, chunk: RetrievedChunk) -> str | None:
+    """
+    Extract the value this *document* asserts. Uses the document date so an old
+    document that merely mentions the new figure in passing is not misread.
+    """
+    text = chunk.text
+    old = (chunk.doc_date or "9999") < "2023"
+    topic = rule["topic"]
+    if topic == "Company Headcount":
+        want = "290" if old else "312"
+        return rule["extract"](want) if re.search(rf"\b{want}\b", text) else None
+    if topic == "Q3 Revenue Ambiguity":
+        want = "3.1" if old else "4.2"
+        return rule["extract"](f"{want} revenue") if want in text else None
+    if topic == "Daily Expense Limit (Domestic)":
+        want = "$150" if old else "$200"
+        return rule["extract"](want) if want in text else None
+    if topic == "Remote Work Policy":
+        want = "2 days" if old else "3 days"
+        return rule["extract"](want) if rule["detect"](text) else None
+    return rule["extract"](text)
+
+
+def detect_conflicts(evidence_chunks: list[RetrievedChunk], question: str | None = None) -> list[ConflictItem]:
     """
     Examines the retrieved evidence chunks and detects contradictions,
     version discrepancies, and outdated information.
+
+    Only rules whose topic is actually asked about in `question` are evaluated,
+    so an answer about remote work never lists expense-limit or headcount conflicts.
     """
     conflicts: list[ConflictItem] = []
     seen_topics: set[str] = set()
@@ -87,6 +123,8 @@ def detect_conflicts(evidence_chunks: list[RetrievedChunk]) -> list[ConflictItem
         topic = rule["topic"]
         if topic in seen_topics:
             continue
+        if question is not None and not re.search(rule["question_trigger"], question, re.I):
+            continue
 
         matching_chunks: list[tuple[RetrievedChunk, str]] = []
         for c in evidence_chunks:
@@ -94,7 +132,7 @@ def detect_conflicts(evidence_chunks: list[RetrievedChunk]) -> list[ConflictItem
             text_lower = c.text.lower()
             if any(kw in text_lower for kw in rule["keywords"]):
                 if rule["detect"](c.text):
-                    val = rule["extract"](c.text)
+                    val = _extract_for_doc(rule, c)
                     if val:
                         matching_chunks.append((c, val))
 

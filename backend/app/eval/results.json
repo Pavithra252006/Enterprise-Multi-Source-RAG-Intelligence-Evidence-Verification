@@ -4,36 +4,36 @@
     {
       "method": "BM25 (Lexical Only)",
       "recall_at_6": 1.0,
-      "mrr": 0.8646
+      "mrr": 0.8333
     },
     {
       "method": "Vector (FAISS Dense Only)",
       "recall_at_6": 1.0,
-      "mrr": 0.9688
+      "mrr": 0.9615
     },
     {
       "method": "Hybrid (RRF k=60)",
-      "recall_at_6": 0.8125,
-      "mrr": 0.75
+      "recall_at_6": 1.0,
+      "mrr": 0.9231
     },
     {
       "method": "Hybrid + Rerank (CrossEncoder)",
-      "recall_at_6": 0.8125,
-      "mrr": 0.8125
+      "recall_at_6": 1.0,
+      "mrr": 1.0
     }
   ],
   "metrics": {
     "citation_correctness": 1.0,
-    "factual_accuracy": 0.65,
+    "factual_accuracy": 1.0,
     "unsupported_claim_rate": 0.0,
     "access_control_leakage": {
       "leaked_chunks": 0,
       "leaked_words": 0,
       "leakage_rate": 0.0
     },
-    "abstention_precision": 0.7778,
+    "abstention_precision": 1.0,
     "abstention_recall": 1.0,
-    "abstention_accuracy": 0.9,
+    "abstention_accuracy": 1.0,
     "conflict_detection_rate": 1.0
   },
   "eval_records": [
@@ -57,8 +57,8 @@
       "abstained": false,
       "expected_abstain": false,
       "confidence": 1.0,
-      "claims_count": 2,
-      "conflicts_count": 2,
+      "claims_count": 1,
+      "conflicts_count": 1,
       "status": "PASS"
     },
     {
@@ -81,8 +81,8 @@
       "abstained": false,
       "expected_abstain": false,
       "confidence": 1.0,
-      "claims_count": 1,
-      "conflicts_count": 2,
+      "claims_count": 2,
+      "conflicts_count": 1,
       "status": "PASS"
     },
     {
@@ -94,7 +94,7 @@
       "expected_abstain": false,
       "confidence": 1.0,
       "claims_count": 2,
-      "conflicts_count": 2,
+      "conflicts_count": 1,
       "status": "PASS"
     },
     {
@@ -106,7 +106,7 @@
       "expected_abstain": false,
       "confidence": 1.0,
       "claims_count": 2,
-      "conflicts_count": 2,
+      "conflicts_count": 1,
       "status": "PASS"
     },
     {
@@ -118,7 +118,7 @@
       "expected_abstain": false,
       "confidence": 1.0,
       "claims_count": 2,
-      "conflicts_count": 4,
+      "conflicts_count": 1,
       "status": "PASS"
     },
     {
@@ -129,8 +129,8 @@
       "abstained": false,
       "expected_abstain": false,
       "confidence": 1.0,
-      "claims_count": 1,
-      "conflicts_count": 2,
+      "claims_count": 2,
+      "conflicts_count": 1,
       "status": "PASS"
     },
     {
@@ -178,7 +178,7 @@
       "expected_abstain": false,
       "confidence": 1.0,
       "claims_count": 2,
-      "conflicts_count": 3,
+      "conflicts_count": 0,
       "status": "PASS"
     },
     {
@@ -237,7 +237,7 @@
       "abstained": false,
       "expected_abstain": false,
       "confidence": 1.0,
-      "claims_count": 1,
+      "claims_count": 3,
       "conflicts_count": 0,
       "status": "PASS"
     },
@@ -246,11 +246,11 @@
       "question": "What is the domestic travel expense limit under the updated policy and does it require using ExpenseIQ?",
       "type": "multi-hop",
       "role": "Analyst",
-      "abstained": true,
+      "abstained": false,
       "expected_abstain": false,
-      "confidence": 0.0,
-      "claims_count": 0,
-      "conflicts_count": 0,
+      "confidence": 1.0,
+      "claims_count": 2,
+      "conflicts_count": 1,
       "status": "PASS"
     },
     {
@@ -258,10 +258,10 @@
       "question": "What are the remote work day limits under version 2.0 and what IT security requirements apply to home offices?",
       "type": "multi-hop",
       "role": "Analyst",
-      "abstained": true,
+      "abstained": false,
       "expected_abstain": false,
-      "confidence": 0.0,
-      "claims_count": 0,
+      "confidence": 1.0,
+      "claims_count": 2,
       "conflicts_count": 0,
       "status": "PASS"
     },
@@ -274,7 +274,7 @@
       "expected_abstain": false,
       "confidence": 1.0,
       "claims_count": 2,
-      "conflicts_count": 1,
+      "conflicts_count": 0,
       "status": "PASS"
     }
   ]

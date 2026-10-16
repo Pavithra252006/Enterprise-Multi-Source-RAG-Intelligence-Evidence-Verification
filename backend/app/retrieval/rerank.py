@@ -27,7 +27,7 @@ def get_reranker():
 
         model_name = get_settings().RERANK_MODEL
         log.info("Initializing CrossEncoder: %s", model_name)
-        _reranker = CrossEncoder(model_name)
+        _reranker = CrossEncoder(model_name, max_length=512)
     return _reranker
 
 

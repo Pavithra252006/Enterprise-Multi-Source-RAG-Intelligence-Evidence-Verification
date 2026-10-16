@@ -5,10 +5,17 @@ import ChatArea from './components/ChatArea';
 import EvidenceDrawer from './components/EvidenceDrawer';
 import UploadModal from './components/UploadModal';
 import EvaluationTab from './components/EvaluationTab';
-import { USERS, askQuestion, getDocuments, checkHealth } from './api';
+import LoginPage from './components/LoginPage';
+import { USERS, askQuestion, getDocuments, checkHealth, fetchMe, getToken, setToken } from './api';
+
+const toUiUser = (u) => {
+  const base = USERS.find((x) => x.role === u.role) || USERS[0];
+  return { ...base, name: u.name, label: u.full_name || base.label, employeeId: u.employee_id };
+};
 
 export default function App() {
-  const [currentUser, setCurrentUser] = useState(USERS[0]); // Default to Intern
+  const [currentUser, setCurrentUser] = useState(null); // null => show login
+  const [authChecked, setAuthChecked] = useState(!getToken());
   const [activeTab, setActiveTab] = useState('workspace'); // 'workspace' | 'evaluation'
   const [documents, setDocuments] = useState([]);
   const [isLoadingDocs, setIsLoadingDocs] = useState(false);
@@ -50,13 +57,45 @@ export default function App() {
   };
 
   useEffect(() => {
+    if (!getToken()) return;
+    fetchMe()
+      .then((u) => setCurrentUser(toUiUser(u)))
+      .catch(() => setToken(null))
+      .finally(() => setAuthChecked(true));
+  }, []);
+
+  useEffect(() => {
+    if (!currentUser) return undefined;
     refreshDocuments();
     const interval = setInterval(async () => {
       const h = await checkHealth();
       setIsConnected(h.status === 'ok');
     }, 15000);
     return () => clearInterval(interval);
-  }, []);
+  }, [currentUser]);
+
+  const handleLoggedIn = (data) => {
+    setToken(data.token);
+    const u = toUiUser(data.user);
+    setCurrentUser(u);
+    setActiveTab('workspace');
+  };
+
+  const handleLogout = () => {
+    setToken(null);
+    setCurrentUser(null);
+    setQueryResponse(null);
+    setCurrentQuery('');
+    setActiveCitations([]);
+    setIsDrawerOpen(false);
+  };
+
+  if (!authChecked) return <div className="min-h-screen bg-slate-950" />;
+  if (!currentUser) return <LoginPage onLoggedIn={handleLoggedIn} />;
+
+  // Role permissions
+  const canUpload = currentUser.clearance >= 3;
+  const canViewEval = currentUser.clearance >= 2;
 
   // Execute Question
   const handleAsk = async (questionText, userOverride = null) => {
@@ -93,14 +132,6 @@ export default function App() {
     }
   };
 
-  // Switch User - re-runs active question if present to demonstrate access gating immediately
-  const handleSelectUser = (newUser) => {
-    setCurrentUser(newUser);
-    showToast(`Switched identity to ${newUser.label} (Level ${newUser.clearance}: ${newUser.role})`, 'info');
-    if (currentQuery && !isLoadingQuery) {
-      handleAsk(currentQuery, newUser);
-    }
-  };
 
   // Open specific citation in drawer
   const handleOpenCitation = (citationId) => {
@@ -132,14 +163,15 @@ export default function App() {
       {/* Top Bar with user switcher & tabs */}
       <TopBar
         currentUser={currentUser}
-        onSelectUser={handleSelectUser}
+        onLogout={handleLogout}
         isConnected={isConnected}
         activeTab={activeTab}
         onSelectTab={setActiveTab}
+        canViewEval={canViewEval}
       />
 
       {/* Main Content Area */}
-      {activeTab === 'evaluation' ? (
+      {activeTab === 'evaluation' && canViewEval ? (
         <EvaluationTab />
       ) : (
         /* Main Workspace: Sidebar + Chat */
@@ -148,7 +180,7 @@ export default function App() {
           <Sidebar
             documents={documents}
             currentUser={currentUser}
-            onOpenUpload={() => setIsUploadOpen(true)}
+            onOpenUpload={canUpload ? () => setIsUploadOpen(true) : null}
             isLoadingDocs={isLoadingDocs}
           />
 

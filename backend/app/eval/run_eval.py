@@ -122,7 +122,7 @@ async def _evaluate_all_inner() -> dict[str, Any]:
             # ------------------------------------------------------------------
             # 1. Retrieval Comparison (for questions with expected source docs)
             # ------------------------------------------------------------------
-            if expected_docs:
+            if expected_docs and not should_abstain:
                 # (a) BM25-only
                 lex_hits = lexical_search(question, top_k=6)
                 lex_docs = [chunks_info.get(cid, {}).get("source", "") for cid, _ in lex_hits]
@@ -160,7 +160,7 @@ async def _evaluate_all_inner() -> dict[str, Any]:
             # ------------------------------------------------------------------
             # 2. Run Full Ask Pipeline
             # ------------------------------------------------------------------
-            req = AskRequest(question=question, top_k=6, threshold=0.40)
+            req = AskRequest(question=question, top_k=6, threshold=0.25)
             res = await _handle_ask(req, user, db)
 
             # Check Abstention

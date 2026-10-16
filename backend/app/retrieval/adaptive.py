@@ -10,6 +10,7 @@ Mechanism:
    - Allows up to MAX_ADAPTIVE_ROUNDS (default 2 extra rounds).
 3. Returns ranked evidence and a detailed trace (queries attempted, scores, rounds).
 """
+import asyncio
 import logging
 import re
 from typing import Any
@@ -87,6 +88,24 @@ async def generate_query_variations(query: str, round_num: int) -> list[str]:
     return out[:2] if out else [query]
 
 
+MAX_RERANK_CANDIDATES = 10  # cross-encoder is the slowest step; RRF already ordered the pool
+
+
+async def _score_pool(query: str, pool: list[RetrievedChunk], top_k: int) -> list[RetrievedChunk]:
+    """
+    Cross-encoder score only chunks not yet scored (capped), in a worker thread so the
+    event loop stays responsive. Returns the pool sorted by rerank score.
+    """
+    if not pool:
+        return []
+    unscored = [c for c in pool if c.rerank_score is None][:MAX_RERANK_CANDIDATES]
+    if unscored:
+        await asyncio.to_thread(rerank, query, unscored, len(unscored))
+    scored = [c for c in pool if c.rerank_score is not None]
+    scored.sort(key=lambda c: c.rerank_score, reverse=True)
+    return scored[:top_k]
+
+
 async def adaptive_retrieve(
     query: str,
     user: User,
@@ -116,7 +135,7 @@ async def adaptive_retrieve(
 
     # Round 0: Initial retrieval
     candidates = await hybrid_search(query, user, db)
-    reranked = rerank(query, candidates, top_k=top_k) if candidates else []
+    reranked = await _score_pool(query, candidates, top_k)
     best_score = reranked[0].rerank_score if reranked else -999.0
 
     trace["scores_per_round"].append({
@@ -154,9 +173,9 @@ async def adaptive_retrieve(
                 if nc.chunk_id not in pool_by_id:
                     pool_by_id[nc.chunk_id] = nc
 
-        # Rerank full pool against the original query
+        # Rerank pool against the original query (only chunks not yet scored)
         if pool_by_id:
-            reranked = rerank(query, list(pool_by_id.values()), top_k=top_k)
+            reranked = await _score_pool(query, list(pool_by_id.values()), top_k)
             best_score = reranked[0].rerank_score if reranked else -999.0
         else:
             reranked = []

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import AnswerCard from './AnswerCard';
 import AbstentionCard from './AbstentionCard';
 import ConflictBanner from './ConflictBanner';
+import StatusBanner from './StatusBanner';
 
 export const SAMPLE_QUESTIONS = [
   {
@@ -174,6 +175,9 @@ export default function ChatArea({
             <span className="font-semibold text-slate-500">Query:</span>
             <span className="text-slate-200 font-medium">"{response.question || currentQuery}"</span>
           </div>
+
+          {/* At-a-glance outcome */}
+          <StatusBanner response={response} />
 
           {/* Conflict Banner if detected */}
           {response.conflicts && response.conflicts.length > 0 && (

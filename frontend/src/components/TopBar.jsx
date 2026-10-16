@@ -1,7 +1,6 @@
 import React from 'react';
-import { USERS } from '../api';
 
-export default function TopBar({ currentUser, onSelectUser, isConnected, activeTab, onSelectTab }) {
+export default function TopBar({ currentUser, onLogout, isConnected, activeTab, onSelectTab, canViewEval = true }) {
   return (
     <header className="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
       {/* Brand & Title */}
@@ -44,7 +43,7 @@ export default function TopBar({ currentUser, onSelectUser, isConnected, activeT
           <span>Q&A Workspace</span>
         </button>
 
-        <button
+        {canViewEval && <button
           onClick={() => onSelectTab('evaluation')}
           className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
             activeTab === 'evaluation'
@@ -56,7 +55,7 @@ export default function TopBar({ currentUser, onSelectUser, isConnected, activeT
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
           </svg>
           <span>Evaluation</span>
-        </button>
+        </button>}
       </div>
 
       {/* User Switcher & Status */}
@@ -67,37 +66,22 @@ export default function TopBar({ currentUser, onSelectUser, isConnected, activeT
           <span className="text-slate-300 font-medium">{isConnected ? 'Backend 8000' : 'Connecting...'}</span>
         </div>
 
-        {/* User clearance switcher */}
-        <div className="flex items-center gap-2 bg-slate-950 p-1 rounded-xl border border-slate-800">
-          <div className="flex items-center gap-1.5 pl-2 pr-1 text-xs text-slate-400">
-            <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            <span className="font-semibold text-slate-300">Identity:</span>
+        {/* Logged-in user */}
+        <div className="flex items-center gap-2 bg-slate-950 p-1 pl-3 rounded-xl border border-slate-800">
+          <div className="flex flex-col leading-tight">
+            <span className="text-xs font-semibold text-slate-200">{currentUser.label}</span>
+            <span className="text-[10px] text-slate-500">{currentUser.employeeId ? `${currentUser.employeeId} · ` : ''}{currentUser.clearanceLabel}</span>
           </div>
-
-          <div className="flex gap-1">
-            {USERS.map((user) => {
-              const active = currentUser.name === user.name;
-              return (
-                <button
-                  key={user.name}
-                  onClick={() => onSelectUser(user)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                    active
-                      ? `${user.badgeColor} shadow-md`
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-                  }`}
-                  title={`${user.label} (${user.role}) - Clearance Level ${user.clearance}`}
-                >
-                  <span>{user.role}</span>
-                  <span className={`text-[10px] px-1 py-0.2 rounded font-mono ${active ? 'bg-black/30' : 'bg-slate-800 text-slate-400'}`}>
-                    L{user.clearance}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+          <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${currentUser.badgeColor}`}>
+            {currentUser.role} · L{currentUser.clearance}
+          </span>
+          <button
+            id="logout-btn"
+            onClick={onLogout}
+            className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-rose-600/80 transition"
+          >
+            Logout
+          </button>
         </div>
       </div>
     </header>

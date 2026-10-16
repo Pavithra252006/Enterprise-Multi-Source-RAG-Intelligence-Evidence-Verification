@@ -15,4 +15,5 @@ pg16.zip
 *.sqlite
 *.sqlite3
 uvicorn.log
-backend/data/uploads/
+backend/data/uploads/
+.pytest_cache/

@@ -56,13 +56,65 @@ class AskResponse(BaseModel):
     retrieval_trace: dict[str, Any]
 
 
+_ANSWER_CACHE: dict[tuple, "AskResponse"] = {}
+_CACHE_MAX = 128
+
+
+def _index_version() -> float:
+    from app.ingestion.indexer import FAISS_PATH
+
+    try:
+        return FAISS_PATH.stat().st_mtime
+    except OSError:
+        return 0.0
+
+
 async def _handle_ask(
     req: AskRequest,
     user: User,
     db: AsyncSession,
 ) -> AskResponse:
+    """Timing + cache wrapper. Cache is keyed by role/clearance so access control is never bypassed."""
+    started = time.perf_counter()
+    key = (
+        req.question.strip().lower(),
+        user.role,
+        user.clearance_level,
+        req.top_k,
+        req.threshold,
+        _index_version(),
+    )
+    cached = _ANSWER_CACHE.get(key)
+    if cached is not None:
+        resp = cached.model_copy(deep=True)
+        resp.user_id = user.id
+        resp.retrieval_trace["cached"] = True
+        resp.retrieval_trace["elapsed_ms"] = int((time.perf_counter() - started) * 1000)
+        db.add(QueryLog(
+            user_id=user.id,
+            question=req.question,
+            answer_json=resp.model_dump(),
+            abstained=resp.abstained,
+        ))
+        await db.commit()
+        return resp
+
+    resp = await _run_ask(req, user, db)
+    resp.retrieval_trace["cached"] = False
+    resp.retrieval_trace["elapsed_ms"] = int((time.perf_counter() - started) * 1000)
+    if len(_ANSWER_CACHE) >= _CACHE_MAX:
+        _ANSWER_CACHE.pop(next(iter(_ANSWER_CACHE)))
+    _ANSWER_CACHE[key] = resp.model_copy(deep=True)
+    return resp
+
+
+async def _run_ask(
+    req: AskRequest,
+    user: User,
+    db: AsyncSession,
+) -> AskResponse:
     settings = get_settings()
-    threshold = req.threshold if req.threshold is not None else (settings.ADAPTIVE_RERANK_THRESHOLD or 0.40)
+    threshold = req.threshold if req.threshold is not None else settings.ADAPTIVE_RERANK_THRESHOLD
 
     # 1. Hybrid retrieval with clearance access gating
     evidence_chunks, trace = await adaptive_retrieve(
@@ -107,7 +159,7 @@ async def _handle_ask(
         return response_data
 
     # 3. Detect conflicts between retrieved chunks
-    conflicts = detect_conflicts(evidence_chunks)
+    conflicts = detect_conflicts(evidence_chunks, req.question)
 
     # 4. Generate answer grounded in evidence
     gen_result, chunk_map = await generate_answer(req.question, evidence_chunks)
@@ -126,10 +178,12 @@ async def _handle_ask(
         final_answer = ABSTAIN_MESSAGE
         active_claims = []
         active_conflicts = []
+        final_confidence = 0.0
     else:
         # Filter out or keep verified claims
         active_claims = ver_result.verified_claims
         active_conflicts = conflicts
+        final_confidence = ver_result.confidence
 
     response_data = AskResponse(
         question=req.question,
@@ -140,7 +194,7 @@ async def _handle_ask(
         claims=active_claims,
         conflicts=active_conflicts,
         abstained=abstained,
-        confidence=ver_result.confidence,
+        confidence=final_confidence,
         retrieval_trace=trace,
     )
 

@@ -47,6 +47,31 @@ class User(Base):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Employees (individual login credentials) + login audit trail
+# ─────────────────────────────────────────────────────────────────────────────
+class Employee(Base):
+    __tablename__ = "employees"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    employee_id: Mapped[str] = mapped_column(String(30), unique=True, nullable=False)
+    full_name: Mapped[str] = mapped_column(String(120), nullable=False)
+    code_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), unique=True, nullable=False)
+    active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+
+
+class LoginEvent(Base):
+    __tablename__ = "login_events"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    employee_id: Mapped[str] = mapped_column(String(30), nullable=True)  # null = unknown code
+    success: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_now, nullable=False
+    )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Documents
 # ─────────────────────────────────────────────────────────────────────────────
 class Document(Base):

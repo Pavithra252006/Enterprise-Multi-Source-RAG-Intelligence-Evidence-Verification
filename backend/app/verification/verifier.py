@@ -48,31 +48,81 @@ class VerificationResult(BaseModel):
 def _verify_locally(claim: GeneratedClaim, cited_chunks: list[RetrievedChunk]) -> tuple[str, str, str | None]:
     """
     Deterministic rule-based verification when Anthropic API is unconfigured/offline.
-    Checks for exact substring or keyword presence in the cited evidence.
+    Checks that every numerical/factual quantity asserted in the claim is supported
+    in the cited evidence body (not accidentally matching prefix dates/versions).
     """
     if not cited_chunks:
         return "UNSUPPORTED", "No cited evidence chunks provided for this claim.", None
 
-    combined_text = " ".join(c.text for c in cited_chunks).lower()
     claim_lower = claim.claim_text.lower()
 
-    # Look for key numeric or policy values
-    key_terms = re.findall(r"\$?\d+(?:,\d+)*(?:\.\d+)?|\b(?:remote|days|travel|headcount|salary|bonus|vesting)\b", claim_lower)
-    matching_terms = [t for t in key_terms if t in combined_text]
+    # Extract body text without the [Title | vX | Date] prefix to avoid accidental date/version matches
+    bodies = []
+    for c in cited_chunks:
+        text = c.text
+        if text.startswith("[") and "]" in text:
+            text = text[text.find("]") + 1:].strip()
+        bodies.append(text)
+    combined_body = " ".join(bodies).lower()
 
-    if len(matching_terms) >= max(1, len(key_terms) // 2):
-        # Locate a span
-        span = None
-        for c in cited_chunks:
-            for sentence in c.text.split("."):
-                if any(t in sentence.lower() for t in key_terms):
-                    span = sentence.strip()
-                    break
-            if span:
-                break
-        return "SUPPORTED", "Directly affirmed by the cited document source text.", span
+    # 1. Strict number check: any number or currency in the claim must exist as a whole word in the body
+    # Strip versions like v1.0, v2.0, v3.2 before extracting numbers
+    claim_for_numbers = re.sub(r"\bv\d+(?:\.\d+)?\b", "", claim_lower)
+    claim_numbers = re.findall(r"\b\d+(?:,\d+)*(?:\.\d+)?\b", claim_for_numbers)
+    # Filter out common metadata years/versions (2021, 2022, 2024, etc.) if they appear in metadata
+    meta_years = {"2021", "2022", "2023", "2024", "2025", "2026"}
+    substantive_numbers = [n for n in claim_numbers if n not in meta_years]
+
+    for num in substantive_numbers:
+        pattern = rf"\b{re.escape(num)}\b"
+        num_raw = num.replace(",", "")
+        pattern_raw = rf"\b{re.escape(num_raw)}\b"
+        if not (re.search(pattern, combined_body) or re.search(pattern_raw, combined_body)):
+            return (
+                "UNSUPPORTED",
+                f"Asserted quantity '{num}' is not supported by the cited evidence.",
+                None,
+            )
+
+    # 2. Check for content word overlap
+    stop_words = {
+        "the", "a", "an", "is", "are", "was", "were", "to", "of", "and", "in", "for",
+        "on", "by", "at", "be", "this", "that", "under", "with", "from", "acme", "corp",
+        "according", "policy", "employees", "employee", "per", "must", "can", "will"
+    }
+    claim_words = [w for w in re.findall(r"\b[a-z]{3,}\b", claim_lower) if w not in stop_words]
+
+    if not claim_words:
+        return "UNSUPPORTED", "Claim has no verifiable factual assertions.", None
+
+    # Check best matching sentence across cited chunks
+    best_span = None
+    best_overlap = 0
+
+    for c in cited_chunks:
+        raw_sents = [s.strip() for s in re.split(r"(?<=[.!?])\s+|\n+", c.text) if len(s.strip()) >= 15]
+        candidate_spans = list(raw_sents)
+        for idx in range(len(raw_sents) - 1):
+            candidate_spans.append(f"{raw_sents[idx]} {raw_sents[idx+1]}")
+
+        for s_clean in candidate_spans:
+            s_lower = s_clean.lower()
+            overlap = sum(1 for w in claim_words if w in s_lower)
+            if overlap > best_overlap:
+                best_overlap = overlap
+                best_span = s_clean
+
+    overlap_ratio = best_overlap / len(claim_words) if claim_words else 0.0
+
+    # Require at least 40% keyword match and minimum 2 keywords (or 1 if claim is very short)
+    if overlap_ratio >= 0.40 and best_overlap >= min(2, len(claim_words)):
+        return "SUPPORTED", "Directly affirmed by the cited document source text.", best_span
     else:
-        return "UNSUPPORTED", "The cited text does not contain sufficient factual evidence for the claim.", None
+        return (
+            "UNSUPPORTED",
+            "The cited text does not contain sufficient factual evidence for the claim.",
+            None,
+        )
 
 
 async def verify_single_claim(

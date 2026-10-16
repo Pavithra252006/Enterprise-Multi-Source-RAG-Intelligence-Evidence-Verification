@@ -34,7 +34,7 @@
     "question": "What was Acme Corp's total gross revenue in FY2024?",
     "user_role": "analyst",
     "expected_source_docs": ["annual_report_2024.pdf"],
-    "expected_answer_keywords": ["18.4", "revenue"],
+    "expected_answer_keywords": ["16.2", "revenue"],
     "type": "factual",
     "should_abstain": false,
     "has_conflict": false

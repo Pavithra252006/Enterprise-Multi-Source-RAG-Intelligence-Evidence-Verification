@@ -9,6 +9,7 @@ Startup sequence
 Routers (stubbed for ingestion, retrieval, generation, verification, auth, eval)
 are imported and included so the URL namespaces are reserved.
 """
+import threading
 import time
 from contextlib import asynccontextmanager
 
@@ -19,6 +20,7 @@ from sqlalchemy import text
 from app.config import get_settings
 from app.db import AsyncSessionLocal, init_db
 from app.models import User
+from app.auth.employees import seed_employees
 from app.schemas import HealthResponse
 
 # ── Router imports (stubbed modules expose empty routers) ─────────────────────
@@ -58,10 +60,23 @@ async def seed_users() -> None:
 # ─────────────────────────────────────────────────────────────────────────────
 # Lifespan
 # ─────────────────────────────────────────────────────────────────────────────
+def _warm_models() -> None:
+    try:
+        from app.ingestion.indexer import embed_query
+        from app.retrieval.rerank import get_reranker
+
+        embed_query("warmup")
+        get_reranker()
+    except Exception as exc:  # noqa: BLE001
+        print(f"Model warm-up skipped: {exc}")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
     await seed_users()
+    await seed_employees()
+    threading.Thread(target=_warm_models, daemon=True).start()
     yield
 
 

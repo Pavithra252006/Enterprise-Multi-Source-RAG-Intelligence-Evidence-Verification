@@ -10,7 +10,8 @@ from app.db import get_db
 from app.ingestion.indexer import BACKEND_DIR, rebuild_indexes
 from app.ingestion.registry import guess_source_type
 from app.ingestion.service import ROLES_BY_LEVEL, ingest_document
-from app.models import Chunk, Document
+from app.auth.access import get_current_user
+from app.models import Chunk, Document, User
 
 router = APIRouter()  # mounted at /api/v1/ingestion
 api_router = APIRouter(tags=["ingestion"])  # mounted at root: /ingest/upload, /documents
@@ -31,8 +32,11 @@ async def upload_document(
     doc_date: str = Form(...),
     access_level: int = Form(1),
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
 ):
     """Ingest an uploaded file, then rebuild the FAISS + BM25 indexes."""
+    if user.clearance_level < 3:
+        raise HTTPException(403, "Your role is not permitted to ingest documents.")
     if access_level not in ROLES_BY_LEVEL:
         raise HTTPException(422, "access_level must be 1-4")
     filename = Path(file.filename or "").name

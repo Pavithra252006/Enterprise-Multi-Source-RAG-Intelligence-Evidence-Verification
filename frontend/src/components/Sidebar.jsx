@@ -47,7 +47,7 @@ export default function Sidebar({
         </div>
 
         {/* Upload Trigger Button */}
-        <button
+        {onOpenUpload && <button
           onClick={onOpenUpload}
           className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-xs font-semibold shadow-md shadow-indigo-600/20 transition-all cursor-pointer"
         >
@@ -55,7 +55,7 @@ export default function Sidebar({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
           <span>Ingest New Document</span>
-        </button>
+        </button>}
 
         {/* Search Input */}
         <div className="relative">
