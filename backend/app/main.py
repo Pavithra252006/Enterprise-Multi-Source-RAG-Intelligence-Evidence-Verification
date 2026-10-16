@@ -30,6 +30,7 @@ from app.generation.router import router as generation_router, api_router as gen
 from app.verification.router import router as verification_router
 from app.auth.router import router as auth_router
 from app.eval.router import router as eval_router, api_router as eval_api_router
+from app.simulation.router import router as simulation_router, api_router as simulation_api_router
 
 settings = get_settings()
 
@@ -135,6 +136,8 @@ app.include_router(verification_router, prefix="/api/v1/verification", tags=["ve
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(eval_router, prefix="/api/v1/eval", tags=["eval"])
 app.include_router(eval_api_router)  # /eval/results, /eval/run
+app.include_router(simulation_router, prefix="/api/v1/simulation", tags=["simulation"])
+app.include_router(simulation_api_router)  # /simulate, /presets
 
 
 # ─────────────────────────────────────────────────────────────────────────────

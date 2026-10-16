@@ -63,7 +63,8 @@ def can_access(user: User, chunk: Chunk | dict[str, Any]) -> bool:
     # 2. Role check (if allowed_roles is specified)
     if allowed_roles:
         normalized_allowed = [r.lower().strip() for r in allowed_roles if r]
-        if normalized_allowed and user.role.lower().strip() not in normalized_allowed:
+        user_role = (user.role or user.name or "").lower().strip()
+        if normalized_allowed and user_role not in normalized_allowed:
             return False
 
     return True

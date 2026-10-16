@@ -80,3 +80,22 @@ export async function runEvaluation() {
   const response = await client.post('/eval/run');
   return response.data;
 }
+
+export async function fetchSimulationPresets() {
+  const response = await client.get('/simulation/presets');
+  return response.data;
+}
+
+export async function runPolicySimulation(scenario, userId = 'executive') {
+  const response = await client.post(
+    '/simulation/simulate',
+    { scenario, user_id: userId },
+    {
+      headers: {
+        'X-User-Id': userId,
+      },
+    }
+  );
+  return response.data;
+}
+

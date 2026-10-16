@@ -5,6 +5,7 @@ import ChatArea from './components/ChatArea';
 import EvidenceDrawer from './components/EvidenceDrawer';
 import UploadModal from './components/UploadModal';
 import EvaluationTab from './components/EvaluationTab';
+import PolicySimulator from './components/PolicySimulator';
 import LoginPage from './components/LoginPage';
 import { USERS, askQuestion, getDocuments, checkHealth, fetchMe, getToken, setToken, login } from './api';
 
@@ -189,6 +190,8 @@ export default function App() {
       {/* Main Content Area */}
       {activeTab === 'evaluation' && canViewEval ? (
         <EvaluationTab />
+      ) : activeTab === 'simulation' && canViewEval ? (
+        <PolicySimulator currentUser={currentUser} />
       ) : (
         /* Main Workspace: Sidebar + Chat */
         <div className="flex-1 flex overflow-hidden">
